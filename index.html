@@ -16,12 +16,23 @@ label{font-weight:700;display:block;margin:12px 0 6px}input,select,textarea{widt
 <label>상담 방법</label><select id="method"><option>대면</option><option>온라인</option></select>
 <label>상담받고 싶은 내용</label><textarea id="memo" required placeholder="상담받고 싶은 내용을 적어주세요."></textarea>
 <button class="btn" type="submit">상담 신청하기</button></form><div id="msg"></div></div>
-<div class="card"><h3>신청 내역 확인</h3><div class="muted">이름과 번호를 입력하면 본인의 상담 신청 상태를 확인할 수 있습니다.</div>
-<div class="grid"><input id="sn" placeholder="이름"><input id="sno" placeholder="번호" inputmode="numeric"></div><button class="btn" onclick="lookup()">내 신청 확인</button><div id="result"></div></div></div>
+<div class="card"><h3>신청 내역 확인</h3><div class="muted">이름과 학번을 입력하면 본인의 상담 신청 상태를 확인할 수 있습니다.<br>학번 입력 예시: <b>1학년 1반 1번 → 10101</b></div>
+<div class="grid"><input id="sn" placeholder="이름"><input id="sno" placeholder="학번 (예: 10101)" inputmode="numeric" maxlength="5"></div><button class="btn" onclick="lookup()">내 신청 확인</button><div id="result"></div></div></div>
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbz18spt4Jiv6Ynn1DZy_-N1Upmu-ZFIVZcWROQTwaG7_v6LA8t1eDMuG_aIA_6IxtlQ/exec";
 document.getElementById("date").min=new Date().toISOString().slice(0,10);
 async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
-f.addEventListener("submit",async e=>{e.preventDefault();msg.innerHTML="처리 중입니다...";try{let r=await api("create",{grade:grade.value,cls:cls.value,no:no.value,name:name.value,category:category.value,date:date.value,time:time.value,method:method.value,memo:memo.value});if(!r.ok)throw Error(r.message);msg.innerHTML='<div class="success">상담 신청이 완료되었습니다.<br>신청번호: <b>'+r.id+'</b></div>';f.reset();date.min=new Date().toISOString().slice(0,10)}catch(e){msg.innerHTML='<div class="error">'+e.message+"</div>"}});
-async function lookup(){result.innerHTML="조회 중...";try{let r=await api("lookup",{name:sn.value,no:sno.value});if(!r.items.length){result.innerHTML='<p class="muted">신청 내역이 없습니다.</p>';return}result.innerHTML=r.items.map(x=>'<div class="card" style="box-shadow:none;border:1px solid #eee"><b>'+x.date+" "+x.time+"</b> · "+x.category+"<br>상태: <b>"+x.status+"</b><p>"+x.memo+"</p></div>").join("")}catch(e){result.innerHTML='<div class="error">'+e.message+"</div>"}}
+f.addEventListener("submit",async e=>{
+e.preventDefault();
+msg.innerHTML="신청 가능 여부를 확인하고 있습니다...";
+try{
+let r=await api("create",{grade:grade.value,cls:cls.value,no:no.value,name:name.value,category:category.value,date:date.value,time:time.value,method:method.value,memo:memo.value});
+if(!r.ok)throw Error(r.message);
+msg.innerHTML='<div class="success">상담 신청이 완료되었습니다.<br>신청번호: <b>'+r.id+'</b></div>';
+f.reset();
+date.min=new Date().toISOString().slice(0,10)
+}catch(e){
+msg.innerHTML='<div class="error">'+e.message+'</div>'
+}});
+async function lookup(){const studentId=sno.value.trim();if(!/^\d{5}$/.test(studentId)){result.innerHTML='<div class="error">학번은 5자리 숫자로 입력해주세요.<br>예: 1학년 1반 1번 → <b>10101</b></div>';return}result.innerHTML="조회 중...";try{let r=await api("lookup",{name:sn.value,no:String(parseInt(studentId.slice(3),10))});if(!r.items.length){result.innerHTML='<p class="muted">신청 내역이 없습니다.</p>';return}result.innerHTML=r.items.map(x=>'<div class="card" style="box-shadow:none;border:1px solid #eee"><b>'+x.date+" "+x.time+"</b> · "+x.category+"<br>상태: <b>"+x.status+"</b><p>"+x.memo+"</p></div>").join("")}catch(e){result.innerHTML='<div class="error">'+e.message+"</div>"}}
 </script></body></html>
