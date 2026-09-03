@@ -11,7 +11,39 @@ body{margin:0;background:#f5f7fb;font-family:Arial,"Noto Sans KR",sans-serif;col
 const API_URL="https://script.google.com/macros/s/AKfycbz18spt4Jiv6Ynn1DZy_-N1Upmu-ZFIVZcWROQTwaG7_v6LA8t1eDMuG_aIA_6IxtlQ/exec";let data=[];
 async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
 async function load(){try{let r=await api("list");if(!r.ok)throw Error(r.message);data=r.items;render()}catch(e){alert(e.message)}}
-function render(){let s=sf.value,c=cf.value,q=document.getElementById("q").value.trim();let rows=data.filter(x=>(s==="전체"||x.status===s)&&(c==="전체"||x.category===c)&&(!q||x.name.includes(q)));total.textContent=data.length;waiting.textContent=data.filter(x=>x.status==="신청").length;approved.textContent=data.filter(x=>x.status==="승인").length;done.textContent=data.filter(x=>x.status==="상담 완료").length;body.innerHTML=rows.map(x=>`<tr><td>${x.date}<br>${x.time}</td><td>${x.name}<br>${x.grade} ${x.cls}반 ${x.no}번</td><td>${x.category}</td><td>${x.method}</td><td>${x.memo}</td><td><span class="badge ${x.status==='신청'?'wait':x.status==='승인'?'ok':x.status==='상담 완료'?'done':'cancel'}">${x.status}</span></td><td>${x.status==='신청'?`<button class="blue" onclick="status('${x.id}','승인')">승인</button>`:''} ${x.status==='승인'?`<button class="gray" onclick="status('${x.id}','상담 완료')">완료</button>`:''} ${x.status!=='상담 완료'&&x.status!=='취소'?`<button class="red" onclick="status('${x.id}','취소')">취소</button>`:''}</td></tr>`).join("")||'<tr><td colspan="7" style="text-align:center;padding:30px">신청 내역이 없습니다.</td></tr>'}
+
+function formatDateText(dateStr, timeStr) {
+  if (!dateStr) return "";
+  const dParts = dateStr.split("-");
+  let year = dParts[0] || "", month = dParts[1] || "", day = dParts[2] || "";
+  let hour = "00", min = "00";
+  if (timeStr) {
+    const tParts = timeStr.split(":");
+    hour = tParts[0] || "00";
+    min = tParts[1] || "00";
+  }
+  return `${year}년 ${month}월 ${day}일<br>${hour}시 ${min}분`;
+}
+
+function render(){
+  let s=sf.value,c=cf.value,q=document.getElementById("q").value.trim();
+  let rows=data.filter(x=>(s==="전체"||x.status===s)&&(c==="전체"||x.category===c)&&(!q||x.name.includes(q)));
+  total.textContent=data.length;
+  waiting.textContent=data.filter(x=>x.status==="신청").length;
+  approved.textContent=data.filter(x=>x.status==="승인").length;
+  done.textContent=data.filter(x=>x.status==="상담 완료").length;
+  
+  body.innerHTML=rows.map(x=>`<tr>
+    <td>${formatDateText(x.date, x.time)}</td>
+    <td><b>${x.name}</b><br>${x.grade} ${x.cls}반 ${x.no}번</td>
+    <td>${x.category}</td>
+    <td>${x.method}</td>
+    <td>${x.memo}</td>
+    <td><span class="badge ${x.status==='신청'?'wait':x.status==='승인'?'ok':x.status==='상담 완료'?'done':'cancel'}">${x.status}</span></td>
+    <td>${x.status==='신청'?`<button class="blue" onclick="status('${x.id}','승인')">승인</button>`:''} ${x.status==='승인'?`<button class="gray" onclick="status('${x.id}','상담 완료')">완료</button>`:''} ${x.status!=='상담 완료'&&x.status!=='취소'?`<button class="red" onclick="status('${x.id}','취소')">취소</button>`:''}</td>
+  </tr>`).join("")||'<tr><td colspan="7" style="text-align:center;padding:30px">신청 내역이 없습니다.</td></tr>'
+}
+
 async function status(id,statusValue){if(!confirm("상태를 '"+statusValue+"'로 변경할까요?"))return;try{let r=await api("status",{id,status:statusValue});if(!r.ok)throw Error(r.message);await load()}catch(e){alert(e.message)}}
 load();
 </script></body></html>
