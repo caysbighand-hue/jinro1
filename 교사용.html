@@ -22,7 +22,7 @@ body{margin:0;background:#f5f7fb;font-family:Arial,"Noto Sans KR",sans-serif;col
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbz18spt4Jiv6Ynn1DZy_-N1Upmu-ZFIVZcWROQTwaG7_v6LA8t1eDMuG_aIA_6IxtlQ/exec";
 let data=[];
-let sortOrder="asc"; // 기본 오름차순 정렬
+let sortOrder="asc";
 
 async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
 async function load(){try{let r=await api("list");if(!r.ok)throw Error(r.message);data=r.items;render()}catch(e){alert(e.message)}}
@@ -49,6 +49,11 @@ function getStudentId(grade, cls, no) {
   return g + c + n;
 }
 
+// 이름 데이터 추출 보완 (name, studentName, student_name 호환)
+function getStudentName(x) {
+  return x.name || x.studentName || x.student_name || "이름없음";
+}
+
 function toggleSort(order) {
   sortOrder = order;
   render();
@@ -56,9 +61,11 @@ function toggleSort(order) {
 
 function render(){
   let s=sf.value,c=cf.value,q=document.getElementById("q").value.trim();
-  let rows=data.filter(x=>(s==="전체"||x.status===s)&&(c==="전체"||x.category===c)&&(!q||x.name.includes(q)));
+  let rows=data.filter(x=>{
+    let stName = getStudentName(x);
+    return (s==="전체"||x.status===s) && (c==="전체"||x.category===c) && (!q||stName.includes(q));
+  });
   
-  // 날짜/시간 정렬
   rows.sort((a, b) => {
     let dtA = (a.date || "") + " " + (a.time || "");
     let dtB = (b.date || "") + " " + (b.time || "");
@@ -72,11 +79,11 @@ function render(){
   
   body.innerHTML=rows.map(x=>`<tr>
     <td>${formatDateText(x.date, x.time)}</td>
-    <td><b>${x.name}</b></td>
-    <td>${getStudentId(x.grade, x.cls, x.no)}</td>
+    <td><b>${getStudentName(x)}</b></td>
+    <td>${getStudentId(x.grade, x.cls || x.class, x.no || x.number)}</td>
     <td>${x.category}</td>
     <td>${x.method}</td>
-    <td>${x.memo}</td>
+    <td>${x.memo || ''}</td>
     <td><span class="badge ${x.status==='신청'?'wait':x.status==='승인'?'ok':x.status==='상담 완료'?'done':'cancel'}">${x.status}</span></td>
     <td>${x.status==='신청'?`<button class="blue" onclick="status('${x.id}','승인')">승인</button>`:''} ${x.status==='승인'?`<button class="gray" onclick="status('${x.id}','상담 완료')">완료</button>`:''} ${x.status!=='상담 완료'&&x.status!=='취소'?`<button class="red" onclick="status('${x.id}','취소')">취소</button>`:''}</td>
   </tr>`).join("")||'<tr><td colspan="8" style="text-align:center;padding:30px">신청 내역이 없습니다.</td></tr>'
