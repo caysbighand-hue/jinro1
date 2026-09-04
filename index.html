@@ -19,7 +19,7 @@ label{font-weight:700;display:block;margin:12px 0 6px}input,select,textarea{widt
 <div class="card"><h3>신청 내역 확인</h3><div class="muted">이름과 학번을 입력하면 본인의 상담 신청 상태를 확인할 수 있습니다.<br>학번 입력 예시: <b>1학년 1반 1번 → 10101</b></div>
 <div class="grid"><input id="sn" placeholder="이름"><input id="sno" placeholder="학번 (예: 10101)" inputmode="numeric" maxlength="5"></div><button class="btn" onclick="lookup()">내 신청 확인</button><div id="result"></div></div></div>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbz18spt4Jiv6Ynn1DZy_-N1Upmu-ZFIVZcWROQTwaG7_v6LA8t1eDMuG_aIA_6IxtlQ/exec";
+const API_URL="https://script.google.com/macros/s/AKfycby2ppaBbYDzvf4yNU4zRy1Jiql0p-K90U_ymY2A360RsU5Og2uiixpdk-rNkuh8EKTCvQ/exec";
 document.getElementById("date").min=new Date().toISOString().slice(0,10);
 async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
 f.addEventListener("submit",async e=>{
