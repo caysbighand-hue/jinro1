@@ -150,32 +150,45 @@ document.getElementById("f").addEventListener("submit", async e => {
   }
 });
 
+// index.html의 lookup() 함수 내부 수정[cite: 4]
 async function lookup() {
-  const name = document.getElementById("sn").value.trim();
-  const studentId = document.getElementById("sno").value.trim();
-  const result = document.getElementById("result");
+  const name = document.getElementById("sn").value.trim(); //[cite: 4]
+  const studentId = document.getElementById("sno").value.trim(); //[cite: 4]
+  const result = document.getElementById("result"); //[cite: 4]
 
-  if (!name) {
-    result.innerHTML = '<div class="error">이름을 입력해 주세요.</div>';
+  if (!name) { //[cite: 4]
+    result.innerHTML = '<div class="error">이름을 입력해 주세요.</div>'; //[cite: 4]
     return;
   }
-  if (!/^\d{5}$/.test(studentId)) {
-    result.innerHTML = '<div class="error">학번은 5자리 숫자로 입력해주세요.<br>예: 1학년 1반 1번 → <b>10101</b></div>';
+  if (!/^\d{5}$/.test(studentId)) { //[cite: 4]
+    result.innerHTML = '<div class="error">학번은 5자리 숫자로 입력해주세요.<br>예: 1학년 1반 1번 → <b>10101</b></div>'; //[cite: 4]
     return;
   }
   
-  result.innerHTML = "조회 중...";
+  // 5자리 학번 분해
+  const grade = studentId.substring(0, 1) + "학년";
+  const cls = parseInt(studentId.substring(1, 3), 10).toString();
+  const no = parseInt(studentId.substring(3, 5), 10).toString();
+
+  result.innerHTML = "조회 중..."; //[cite: 4]
   try {
-    let r = await api("lookup", { name: name, studentId: studentId });
-    if (!r.items || !r.items.length) {
-      result.innerHTML = '<p class="muted">신청 내역이 없습니다.</p>';
+    // Apps Script가 받던 기본 데이터 필드로 분할하여 전송
+    let r = await api("lookup", { 
+      name: name, 
+      grade: grade, 
+      cls: cls, 
+      no: no 
+    });
+    
+    if (!r.items || !r.items.length) { //[cite: 4]
+      result.innerHTML = '<p class="muted">신청 내역이 없습니다.</p>'; //[cite: 4]
       return;
     }
     result.innerHTML = r.items.map(x => 
       '<div class="card" style="box-shadow:none;border:1px solid #eee"><b>' + x.date + ' ' + x.time + '</b> · ' + x.category + '<br>상태: <b>' + x.status + '</b><p>' + x.memo + '</p></div>'
-    ).join("");
+    ).join(""); //[cite: 4]
   } catch (e) {
-    result.innerHTML = '<div class="error">' + e.message + '</div>';
+    result.innerHTML = '<div class="error">' + e.message + '</div>'; //[cite: 4]
   }
 }
 </script>
