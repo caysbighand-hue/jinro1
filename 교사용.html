@@ -20,7 +20,12 @@ const API_URL="https://script.google.com/macros/s/AKfycbxxaJFsxIezbpCnI5smDRbR4v
 let data=[],currentPage=1,pageSize=15,sortKey="datetime",sortDir="asc";
 async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
 async function load(){try{let r=await api("list");if(!r.ok)throw Error(r.message);data=r.items||[];currentPage=1;render()}catch(e){alert(e.message)}}
-function studentIdOf(x){let g=String(x.grade||"").replace(/\D/g,""),c=String(x.cls||"").replace(/\D/g,""),n=String(x.no||"").replace(/\D/g,"");return g+c+n.padStart(2,"0");}
+function studentIdOf(x){
+  let g = String(x.grade||"").replace(/\D/g,"");
+  let c = String(x.cls||"").replace(/\D/g,"").padStart(2,"0"); // 반도 2자리로 지정
+  let n = String(x.no||"").replace(/\D/g,"").padStart(2,"0");  // 번호도 2자리로 지정
+  return g + c + n; // 예: 1학년 1반 1번 -> 1 + 01 + 01 = 10101
+}
 function setSort(k){if(sortKey===k)sortDir=sortDir==="asc"?"desc":"asc";else{sortKey=k;sortDir="asc"}currentPage=1;render();}
 function compare(a,b){let av=sortKey==="datetime"?String(a.date||"")+"T"+String(a.time||""):sortKey==="name"?String(a.name||""):studentIdOf(a);let bv=sortKey==="datetime"?String(b.date||"")+"T"+String(b.time||""):sortKey==="name"?String(b.name||""):studentIdOf(b);let n=av.localeCompare(bv,"ko",{numeric:true,sensitivity:"base"});return sortDir==="asc"?n:-n;}
 function render(){
