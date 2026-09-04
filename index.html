@@ -1,5 +1,8 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>진로상담 신청</title>
 <style>
 body{margin:0;background:#f5f7fb;font-family:Arial,"Noto Sans KR",sans-serif;color:#202938}
@@ -7,32 +10,174 @@ body{margin:0;background:#f5f7fb;font-family:Arial,"Noto Sans KR",sans-serif;col
 .card{background:#fff;border-radius:18px;padding:20px;margin:14px 0;box-shadow:0 5px 20px #0000000d}
 label{font-weight:700;display:block;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid #d9deea;border-radius:10px;box-sizing:border-box;font-size:16px}textarea{min-height:110px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;border:0;border-radius:12px;padding:14px;font-weight:700;font-size:16px;background:#4657d8;color:#fff;margin-top:12px}.muted{color:#667085;font-size:13px}.success{background:#eaf8ef;padding:14px;border-radius:12px;color:#176b3a}.error{background:#fff0f0;padding:14px;border-radius:12px;color:#a52222}.hidden{display:none}
-</style></head><body><div class="hero"><div class="wrap"><h1>🎯 진로상담 신청</h1><div>나의 진로 고민, 상담 선생님과 함께 찾아보세요.</div></div></div>
-<div class="wrap"><div class="card"><div class="muted">학생용 · 휴대폰으로 신청 가능</div>
-<form id="f"><div class="grid"><div><label>학년</label><select id="grade" required><option value="">선택</option><option>1학년</option><option>2학년</option><option>3학년</option></select></div><div><label>반</label><select id="cls" required><option value="">선택</option><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option><option value="7">7반</option><option value="8">8반</option><option value="9">9반</option><option value="10">10반</option></select></div><div><label>번호</label><select id="no" required><option value="">선택</option><option value="1">1번</option><option value="2">2번</option><option value="3">3번</option><option value="4">4번</option><option value="5">5번</option><option value="6">6번</option><option value="7">7번</option><option value="8">8번</option><option value="9">9번</option><option value="10">10번</option><option value="11">11번</option><option value="12">12번</option><option value="13">13번</option><option value="14">14번</option><option value="15">15번</option><option value="16">16번</option><option value="17">17번</option><option value="18">18번</option><option value="19">19번</option><option value="20">20번</option><option value="21">21번</option><option value="22">22번</option><option value="23">23번</option><option value="24">24번</option><option value="25">25번</option></select></div><div><label>이름</label><input id="name" required></div></div>
-<label>상담 분야</label><select id="category" required><option value="">선택</option><option>진학</option><option>취업</option><option>진로탐색</option><option>학과·전공</option><option>대학입시</option><option>자격증</option><option>진로미결정</option><option>기타</option></select>
-<label>희망 상담일</label><input id="date" type="date" required>
-<label>희망 시간</label><select id="time" required><option value="">선택</option><option>08:00</option><option>13:00</option><option>16:30</option></select>
-<label>상담 방법</label><select id="method"><option>대면</option><option>온라인</option></select>
-<label>상담받고 싶은 내용</label><textarea id="memo" required placeholder="상담받고 싶은 내용을 적어주세요."></textarea>
-<button class="btn" type="submit">상담 신청하기</button></form><div id="msg"></div></div>
-<div class="card"><h3>신청 내역 확인</h3><div class="muted">이름과 학번을 입력하면 본인의 상담 신청 상태를 확인할 수 있습니다.<br>학번 입력 예시: <b>1학년 1반 1번 → 10101</b></div>
-<div class="grid"><input id="sn" placeholder="이름"><input id="sno" placeholder="학번 (예: 10101)" inputmode="numeric" maxlength="5"></div><button class="btn" onclick="lookup()">내 신청 확인</button><div id="result"></div></div></div>
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="wrap">
+    <h1>🎯 진로상담 신청</h1>
+    <div>나의 진로 고민, 상담 선생님과 함께 찾아보세요.</div>
+  </div>
+</div>
+<div class="wrap">
+  <div class="card">
+    <div class="muted">학생용 · 휴대폰으로 신청 가능</div>
+    <form id="f">
+      <div class="grid">
+        <div>
+          <label>학년</label>
+          <select id="grade" required>
+            <option value="">선택</option>
+            <option value="1학년">1학년</option>
+            <option value="2학년">2학년</option>
+            <option value="3학년">3학년</option>
+          </select>
+        </div>
+        <div>
+          <label>반</label>
+          <select id="cls" required>
+            <option value="">선택</option>
+            <option value="1">1반</option>
+            <option value="2">2반</option>
+            <option value="3">3반</option>
+            <option value="4">4반</option>
+            <option value="5">5반</option>
+            <option value="6">6반</option>
+            <option value="7">7반</option>
+            <option value="8">8반</option>
+            <option value="9">9반</option>
+            <option value="10">10반</option>
+          </select>
+        </div>
+        <div>
+          <label>번호</label>
+          <select id="no" required>
+            <option value="">선택</option>
+            <option value="1">1번</option><option value="2">2번</option><option value="3">3번</option><option value="4">4번</option><option value="5">5번</option>
+            <option value="6">6번</option><option value="7">7번</option><option value="8">8번</option><option value="9">9번</option><option value="10">10번</option>
+            <option value="11">11번</option><option value="12">12번</option><option value="13">13번</option><option value="14">14번</option><option value="15">15번</option>
+            <option value="16">16번</option><option value="17">17번</option><option value="18">18번</option><option value="19">19번</option><option value="20">20번</option>
+            <option value="21">21번</option><option value="22">22번</option><option value="23">23번</option><option value="24">24번</option><option value="25">25번</option>
+          </select>
+        </div>
+        <div>
+          <label>이름</label>
+          <input id="name" required placeholder="이름 입력">
+        </div>
+      </div>
+      
+      <label>상담 분야</label>
+      <select id="category" required>
+        <option value="">선택</option>
+        <option>진학</option><option>취업</option><option>진로탐색</option><option>학과·전공</option><option>대학입시</option><option>자격증</option><option>진로미결정</option><option>기타</option>
+      </select>
+      
+      <label>희망 상담일</label>
+      <input id="date" type="date" required>
+      
+      <label>희망 시간</label>
+      <select id="time" required>
+        <option value="">선택</option>
+        <option>08:00</option>
+        <option>13:00</option>
+        <option>16:30</option>
+      </select>
+      
+      <label>상담 방법</label>
+      <select id="method">
+        <option>대면</option>
+        <option>온라인</option>
+      </select>
+      
+      <label>상담받고 싶은 내용</label>
+      <textarea id="memo" required placeholder="상담받고 싶은 내용을 적어주세요."></textarea>
+      
+      <button class="btn" type="submit">상담 신청하기</button>
+    </form>
+    <div id="msg" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="card">
+    <h3>신청 내역 확인</h3>
+    <div class="muted">이름과 학번을 입력하면 본인의 상담 신청 상태를 확인할 수 있습니다.<br>학번 입력 예시: <b>1학년 1반 1번 → 10101</b></div>
+    <div class="grid" style="margin-top:10px;">
+      <input id="sn" placeholder="이름">
+      <input id="sno" placeholder="학번 (예: 10101)" inputmode="numeric" maxlength="5">
+    </div>
+    <button class="btn" onclick="lookup()">내 신청 확인</button>
+    <div id="result" style="margin-top:12px;"></div>
+  </div>
+</div>
+
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbxxaJFsxIezbpCnI5smDRbR4vcZVH-KT9inf7ivT_jkiTn-Ho4V1v7lsWWGqTzfjort/exec";
-document.getElementById("date").min=new Date().toISOString().slice(0,10);
-async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
-f.addEventListener("submit",async e=>{
-e.preventDefault();
-msg.innerHTML="신청 가능 여부를 확인하고 있습니다...";
-try{
-let r=await api("create",{grade:grade.value,cls:cls.value,no:no.value,name:name.value,category:category.value,date:date.value,time:time.value,method:method.value,memo:memo.value});
-if(!r.ok)throw Error(r.message);
-msg.innerHTML='<div class="success">상담 신청이 완료되었습니다.<br>신청번호: <b>'+r.id+'</b></div>';
-f.reset();
-date.min=new Date().toISOString().slice(0,10)
-}catch(e){
-msg.innerHTML='<div class="error">'+e.message+'</div>'
-}});
-async function lookup(){const studentId=sno.value.trim();if(!/^\d{5}$/.test(studentId)){result.innerHTML='<div class="error">학번은 5자리 숫자로 입력해주세요.<br>예: 1학년 1반 1번 → <b>10101</b></div>';return}result.innerHTML="조회 중...";try{let r=await api("lookup",{name:sn.value.trim(),studentId:sno.value.trim()});if(!r.items.length){result.innerHTML='<p class="muted">신청 내역이 없습니다.</p>';return}result.innerHTML=r.items.map(x=>'<div class="card" style="box-shadow:none;border:1px solid #eee"><b>'+x.date+" "+x.time+"</b> · "+x.category+"<br>상태: <b>"+x.status+"</b><p>"+x.memo+"</p></div>").join("")}catch(e){result.innerHTML='<div class="error">'+e.message+"</div>"}}
-</script></body></html>
+const API_URL = "https://script.google.com/macros/s/AKfycbxxaJFsxIezbpCnI5smDRbR4vcZVH-KT9inf7ivT_jkiTn-Ho4V1v7lsWWGqTzfjort/exec";
+
+document.getElementById("date").min = new Date().toISOString().slice(0, 10);
+
+async function api(action, payload = {}) {
+  let r = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action, ...payload })
+  });
+  return r.json();
+}
+
+document.getElementById("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("msg");
+  msg.innerHTML = "신청 가능 여부를 확인하고 있습니다...";
+  
+  try {
+    let r = await api("create", {
+      grade: document.getElementById("grade").value,
+      cls: document.getElementById("cls").value,
+      no: document.getElementById("no").value,
+      name: document.getElementById("name").value.trim(),
+      category: document.getElementById("category").value,
+      date: document.getElementById("date").value,
+      time: document.getElementById("time").value,
+      method: document.getElementById("method").value,
+      memo: document.getElementById("memo").value
+    });
+    
+    if (!r.ok) throw Error(r.message);
+    
+    msg.innerHTML = '<div class="success">상담 신청이 완료되었습니다.<br>신청번호: <b>' + r.id + '</b></div>';
+    document.getElementById("f").reset();
+    document.getElementById("date").min = new Date().toISOString().slice(0, 10);
+  } catch (e) {
+    msg.innerHTML = '<div class="error">' + e.message + '</div>';
+  }
+});
+
+async function lookup() {
+  const name = document.getElementById("sn").value.trim();
+  const studentId = document.getElementById("sno").value.trim();
+  const result = document.getElementById("result");
+
+  if (!name) {
+    result.innerHTML = '<div class="error">이름을 입력해 주세요.</div>';
+    return;
+  }
+  if (!/^\d{5}$/.test(studentId)) {
+    result.innerHTML = '<div class="error">학번은 5자리 숫자로 입력해주세요.<br>예: 1학년 1반 1번 → <b>10101</b></div>';
+    return;
+  }
+  
+  result.innerHTML = "조회 중...";
+  try {
+    let r = await api("lookup", { name: name, studentId: studentId });
+    if (!r.items || !r.items.length) {
+      result.innerHTML = '<p class="muted">신청 내역이 없습니다.</p>';
+      return;
+    }
+    result.innerHTML = r.items.map(x => 
+      '<div class="card" style="box-shadow:none;border:1px solid #eee"><b>' + x.date + ' ' + x.time + '</b> · ' + x.category + '<br>상태: <b>' + x.status + '</b><p>' + x.memo + '</p></div>'
+    ).join("");
+  } catch (e) {
+    result.innerHTML = '<div class="error">' + e.message + '</div>';
+  }
+}
+</script>
+</body>
+</html>
