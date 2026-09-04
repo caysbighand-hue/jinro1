@@ -16,7 +16,7 @@ th.sortable{cursor:pointer;user-select:none}th.sortable:hover{background:#eef2ff
 <th class="sortable" onclick="setSort('studentId')">학번 <span id="sort-studentId">↕</span></th>
 <th>분야</th><th>방법</th><th>상담내용</th><th>상태</th><th>관리</th></tr></thead><tbody id="body"></tbody></table></div><div id="pagination" class="pagination"></div></div></div>
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbz18spt4Jiv6Ynn1DZy_-N1Upmu-ZFIVZcWROQTwaG7_v6LA8t1eDMuG_aIA_6IxtlQ/exec";
+const API_URL="https://script.google.com/macros/s/AKfycbxxaJFsxIezbpCnI5smDRbR4vcZVH-KT9inf7ivT_jkiTn-Ho4V1v7lsWWGqTzfjort/exec";
 let data=[],currentPage=1,pageSize=15,sortKey="datetime",sortDir="asc";
 async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
 async function load(){try{let r=await api("list");if(!r.ok)throw Error(r.message);data=r.items||[];currentPage=1;render()}catch(e){alert(e.message)}}
