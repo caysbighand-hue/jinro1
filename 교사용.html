@@ -1,46 +1,182 @@
-
-
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>진로상담 관리자</title>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>진로상담 관리자</title>
 <style>
 body{margin:0;background:#f5f7fb;font-family:Arial,"Noto Sans KR",sans-serif;color:#202938}.wrap{max-width:1250px;margin:auto;padding:24px}.head{display:flex;justify-content:space-between;align-items:center;gap:15px}.card{background:#fff;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 5px 20px #0000000d}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:#f7f8fc;padding:16px;border-radius:12px}.stat b{display:block;font-size:28px;margin-top:5px}select,input{padding:10px;border:1px solid #d9deea;border-radius:9px}button{border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:700}.blue{background:#4657d8;color:#fff}.gray{background:#edf0f6}.red{background:#fff0f0;color:#a52222}table{width:100%;border-collapse:collapse}
 th.sortable{cursor:pointer;user-select:none}th.sortable:hover{background:#eef2ff}
 .pagination{display:flex;justify-content:center;align-items:center;gap:7px;margin-top:16px;flex-wrap:wrap}
 .pagebtn{background:#edf0f6}.pagebtn.active{background:#4657d8;color:#fff}
 .pageinfo{font-size:13px;color:#667085}th,td{padding:11px 8px;border-bottom:1px solid #edf0f5;text-align:left;font-size:14px}th{background:#fafbfc;color:#667085}.badge{padding:5px 8px;border-radius:20px;font-size:12px;font-weight:700}.wait{background:#fff4d6}.ok{background:#e7f7ed}.done{background:#e9eefb}.cancel{background:#eee}.filters{display:flex;gap:10px;flex-wrap:wrap}@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}.wrap{padding:12px}table{min-width:950px}} 
-</style></head><body><div class="wrap"><div class="head"><div><h1>📊 진로상담 관리자</h1><div>교사 PC용 상담 신청 관리</div></div><button class="blue" onclick="load()">새로고침</button></div>
-<div class="stats"><div class="stat">전체<b id="total">0</b></div><div class="stat">신청<b id="waiting">0</b></div><div class="stat">승인<b id="approved">0</b></div><div class="stat">완료<b id="done">0</b></div></div>
-<div class="card"><div class="filters"><select id="sf" onchange="render()"><option>전체</option><option>신청</option><option>승인</option><option>상담 완료</option><option>취소</option></select><select id="cf" onchange="render()"><option>전체</option><option>진학</option><option>취업</option><option>진로탐색</option><option>학과·전공</option><option>대학입시</option><option>자격증</option><option>진로미결정</option><option>기타</option></select><input id="q" placeholder="학생 이름 검색" oninput="render()"></div></div>
-<div class="card"><div style="overflow:auto"><table><thead><tr><th class="sortable" onclick="setSort('datetime')">상담일시 <span id="sort-datetime">↕</span></th>
-<th class="sortable" onclick="setSort('name')">학생이름 <span id="sort-name">↕</span></th>
-<th class="sortable" onclick="setSort('studentId')">학번 <span id="sort-studentId">↕</span></th>
-<th>분야</th><th>방법</th><th>상담내용</th><th>상태</th><th>관리</th></tr></thead><tbody id="body"></tbody></table></div><div id="pagination" class="pagination"></div></div></div>
-<script>
-const API_URL="https://script.google.com/macros/s/AKfycbxxaJFsxIezbpCnI5smDRbR4vcZVH-KT9inf7ivT_jkiTn-Ho4V1v7lsWWGqTzfjort/exec";
-let data=[],currentPage=1,pageSize=15,sortKey="datetime",sortDir="asc";
-async function api(action,payload={}){if(API_URL.startsWith("YOUR_"))throw new Error("관리자 설정이 필요합니다.");let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action,...payload})});return r.json();}
-async function load(){try{let r=await api("list");if(!r.ok)throw Error(r.message);data=r.items||[];currentPage=1;render()}catch(e){alert(e.message)}}
-function studentIdOf(x){
-  let g = String(x.grade||"").replace(/\D/g,"");
-  let c = String(x.cls||"").replace(/\D/g,"").padStart(2,"0"); // 반도 2자리로 지정
-  let n = String(x.no||"").replace(/\D/g,"").padStart(2,"0");  // 번호도 2자리로 지정
-  return g + c + n; // 예: 1학년 1반 1번 -> 1 + 01 + 01 = 10101
-}
-function setSort(k){if(sortKey===k)sortDir=sortDir==="asc"?"desc":"asc";else{sortKey=k;sortDir="asc"}currentPage=1;render();}
-function compare(a,b){let av=sortKey==="datetime"?String(a.date||"")+"T"+String(a.time||""):sortKey==="name"?String(a.name||""):studentIdOf(a);let bv=sortKey==="datetime"?String(b.date||"")+"T"+String(b.time||""):sortKey==="name"?String(b.name||""):studentIdOf(b);let n=av.localeCompare(bv,"ko",{numeric:true,sensitivity:"base"});return sortDir==="asc"?n:-n;}
-function render(){
- let s=sf.value,c=cf.value,q=document.getElementById("q").value.trim();
- let rows=data.filter(x=>(s==="전체"||x.status===s)&&(c==="전체"||x.category===c)&&(!q||String(x.name||"").includes(q))).sort(compare);
- total.textContent=data.length;waiting.textContent=data.filter(x=>x.status==="신청").length;approved.textContent=data.filter(x=>x.status==="승인").length;done.textContent=data.filter(x=>x.status==="상담 완료").length;
- let pages=Math.max(1,Math.ceil(rows.length/pageSize));if(currentPage>pages)currentPage=pages;
- let pageRows=rows.slice((currentPage-1)*pageSize,currentPage*pageSize);
- body.innerHTML=pageRows.map(x=>`<tr><td>${x.date}<br>${x.time}</td><td><b>${x.name||"-"}</b></td><td>${studentIdOf(x)}</td><td>${x.category}</td><td>${x.method}</td><td>${x.memo||""}</td><td><span class="badge ${x.status==='신청'?'wait':x.status==='승인'?'ok':x.status==='상담 완료'?'done':'cancel'}">${x.status}</span></td><td>${x.status==='신청'?`<button class="blue" onclick="status('${x.id}','승인')">승인</button>`:''} ${x.status==='승인'?`<button class="gray" onclick="status('${x.id}','상담 완료')">완료</button>`:''} ${x.status!=='상담 완료'&&x.status!=='취소'?`<button class="red" onclick="status('${x.id}','취소')">취소</button>`:''}</td></tr>`).join("")||'<tr><td colspan="8" style="text-align:center;padding:30px">신청 내역이 없습니다.</td></tr>';
- renderPagination(pages,rows.length);updateSort();
-}
-function renderPagination(pages,totalRows){let box=document.getElementById("pagination");if(!totalRows){box.innerHTML="";return;}let h=`<button class="pagebtn" onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}>이전</button>`;for(let i=1;i<=pages;i++)h+=`<button class="pagebtn ${i===currentPage?"active":""}" onclick="goPage(${i})">${i}</button>`;h+=`<button class="pagebtn" onclick="goPage(${currentPage+1})" ${currentPage===pages?"disabled":""}>다음</button><span class="pageinfo">총 ${totalRows}명 · ${currentPage}/${pages}쪽</span>`;box.innerHTML=h;}
-function goPage(p){currentPage=p;render();window.scrollTo({top:0,behavior:"smooth"});}
-function updateSort(){["datetime","name","studentId"].forEach(k=>{let e=document.getElementById("sort-"+k);if(e)e.textContent=sortKey===k?(sortDir==="asc"?"▲":"▼"):"↕";});}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>📊 진로상담 관리자</h1>
+      <div>교사 PC용 상담 신청 관리</div>
+    </div>
+    <button class="blue" onclick="load()">새로고침</button>
+  </div>
+  
+  <div class="stats">
+    <div class="stat">전체<b id="total">0</b></div>
+    <div class="stat">신청<b id="waiting">0</b></div>
+    <div class="stat">승인<b id="approved">0</b></div>
+    <div class="stat">완료<b id="done">0</b></div>
+  </div>
 
-async function status(id,statusValue){if(!confirm("상태를 '"+statusValue+"'로 변경할까요?"))return;try{let r=await api("status",{id,status:statusValue});if(!r.ok)throw Error(r.message);await load()}catch(e){alert(e.message)}}
+  <div class="card">
+    <div class="filters">
+      <select id="sf" onchange="render()">
+        <option>전체</option><option>신청</option><option>승인</option><option>상담 완료</option><option>취소</option>
+      </select>
+      <select id="cf" onchange="render()">
+        <option>전체</option><option>진학</option><option>취업</option><option>진로탐색</option><option>학과·전공</option><option>대학입시</option><option>자격증</option><option>진로미결정</option><option>기타</option>
+      </select>
+      <input id="q" placeholder="학생 이름 검색" oninput="render()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="overflow:auto">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" onclick="setSort('datetime')">상담일시 <span id="sort-datetime">↕</span></th>
+            <th class="sortable" onclick="setSort('name')">학생이름 <span id="sort-name">↕</span></th>
+            <th class="sortable" onclick="setSort('studentId')">학번 <span id="sort-studentId">↕</span></th>
+            <th>분야</th>
+            <th>방법</th>
+            <th>상담내용</th>
+            <th>상태</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="body"></tbody>
+      </table>
+    </div>
+    <div id="pagination" class="pagination"></div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxxaJFsxIezbpCnI5smDRbR4vcZVH-KT9inf7ivT_jkiTn-Ho4V1v7lsWWGqTzfjort/exec";
+let data = [], currentPage = 1, pageSize = 15, sortKey = "datetime", sortDir = "asc";
+
+async function api(action, payload = {}) {
+  let r = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action, ...payload })
+  });
+  return r.json();
+}
+
+async function load() {
+  try {
+    let r = await api("list");
+    if (!r.ok) throw Error(r.message);
+    data = r.items || [];
+    currentPage = 1;
+    render();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function studentIdOf(x) {
+  let g = String(x.grade || "").replace(/\D/g, "");
+  let c = String(x.cls || "").replace(/\D/g, "").padStart(2, "0");
+  let n = String(x.no || "").replace(/\D/g, "").padStart(2, "0");
+  return g + c + n;
+}
+
+function setSort(k) {
+  if (sortKey === k) sortDir = sortDir === "asc" ? "desc" : "asc";
+  else { sortKey = k; sortDir = "asc"; }
+  currentPage = 1;
+  render();
+}
+
+function compare(a, b) {
+  let av = sortKey === "datetime" ? String(a.date || "") + "T" + String(a.time || "") : sortKey === "name" ? String(a.name || "") : studentIdOf(a);
+  let bv = sortKey === "datetime" ? String(b.date || "") + "T" + String(b.time || "") : sortKey === "name" ? String(b.name || "") : studentIdOf(b);
+  let n = av.localeCompare(bv, "ko", { numeric: true, sensitivity: "base" });
+  return sortDir === "asc" ? n : -n;
+}
+
+function render() {
+  let sf = document.getElementById("sf").value;
+  let cf = document.getElementById("cf").value;
+  let q = document.getElementById("q").value.trim();
+  
+  let rows = data.filter(x => 
+    (sf === "전체" || x.status === sf) &&
+    (cf === "전체" || x.category === cf) &&
+    (!q || String(x.name || "").includes(q))
+  ).sort(compare);
+
+  document.getElementById("total").textContent = data.length;
+  document.getElementById("waiting").textContent = data.filter(x => x.status === "신청").length;
+  document.getElementById("approved").textContent = data.filter(x => x.status === "승인").length;
+  document.getElementById("done").textContent = data.filter(x => x.status === "상담 완료").length;
+
+  let pages = Math.max(1, Math.ceil(rows.length / pageSize));
+  if (currentPage > pages) currentPage = pages;
+  let pageRows = rows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  document.getElementById("body").innerHTML = pageRows.map(x => `
+    <tr>
+      <td>${x.date}<br>${x.time}</td>
+      <td><b>${x.name || "-"}</b></td>
+      <td>${studentIdOf(x)}</td>
+      <td>${x.category}</td>
+      <td>${x.method}</td>
+      <td>${x.memo || ""}</td>
+      <td><span class="badge ${x.status==='신청'?'wait':x.status==='승인'?'ok':x.status==='상담 완료'?'done':'cancel'}">${x.status}</span></td>
+      <td>
+        ${x.status==='신청'?`<button class="blue" onclick="status('${x.id}','승인')">승인</button>`:''}
+        ${x.status==='승인'?`<button class="gray" onclick="status('${x.id}','상담 완료')">완료</button>`:''}
+        ${x.status!=='상담 완료'&&x.status!=='취소'?`<button class="red" onclick="status('${x.id}','취소')">취소</button>`:''}
+      </td>
+    </tr>
+  `).join("") || '<tr><td colspan="8" style="text-align:center;padding:30px">신청 내역이 없습니다.</td></tr>';
+
+  renderPagination(pages, rows.length);
+  updateSort();
+}
+
+function renderPagination(pages, totalRows) {
+  let box = document.getElementById("pagination");
+  if (!totalRows) { box.innerHTML = ""; return; }
+  let h = `<button class="pagebtn" onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""}>이전</button>`;
+  for (let i = 1; i <= pages; i++) h += `<button class="pagebtn ${i===currentPage?"active":""}" onclick="goPage(${i})">${i}</button>`;
+  h += `<button class="pagebtn" onclick="goPage(${currentPage+1})" ${currentPage===pages?"disabled":""}>다음</button><span class="pageinfo">총 ${totalRows}명 · ${currentPage}/${pages}쪽</span>`;
+  box.innerHTML = h;
+}
+
+function goPage(p) { currentPage = p; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+function updateSort() {
+  ["datetime","name","studentId"].forEach(k => {
+    let e = document.getElementById("sort-" + k);
+    if (e) e.textContent = sortKey === k ? (sortDir === "asc" ? "▲" : "▼") : "↕";
+  });
+}
+
+async function status(id, statusValue) {
+  if (!confirm("상태를 '" + statusValue + "'로 변경할까요?")) return;
+  try {
+    let r = await api("status", { id, status: statusValue });
+    if (!r.ok) throw Error(r.message);
+    await load();
+  } catch (e) { alert(e.message); }
+}
+
 load();
-</script></body></html>
+</script>
+</body>
+</html>
